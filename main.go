@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 )
@@ -154,6 +155,7 @@ func findRectangleIntersection(inputRectangles_ InputRectangles) {
 	inputRectangles, err := convertInputRectangles(inputRectangles_)
 
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
@@ -189,22 +191,46 @@ func findRectangleIntersection(inputRectangles_ InputRectangles) {
 	}
 }
 
-func importJSON() InputRectangles {
-	data, err := ioutil.ReadFile("input.json")
+func importJSON(filename string) (InputRectangles, error) {
+	data, err := ioutil.ReadFile(filename)
 
 	var inputRectangles InputRectangles
 
 	err = json.Unmarshal(data, &inputRectangles)
 
 	if err != nil {
-		fmt.Println("error :", err)
+		fmt.Println("error : File reading error, please check your input file")
+		return inputRectangles, err
 	}
 
-	return inputRectangles
+	return inputRectangles, nil
+}
+
+func checkArguments() (string, error) {
+	var inputfilename string
+	flag.StringVar(&inputfilename, "file", "input.json", "JSON file input")
+	flag.Parse()
+
+	if inputfilename == "" {
+		return inputfilename, errors.New("No file input was provided!")
+	}
+
+	return inputfilename, nil
 }
 
 func main() {
-	inputRectangles := importJSON()
+
+	jsonFileInput, err := checkArguments()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	inputRectangles, err := importJSON(jsonFileInput)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	findRectangleIntersection(inputRectangles)
 }
