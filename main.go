@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 )
@@ -16,14 +17,14 @@ type Rectangle struct {
 }
 
 type Rects struct {
-	x int `json:"x"`
-	y int `json:"y"`
-	w int `json:"w"`
-	h int `json:"h"`
+	X int `json:"x"`
+	Y int `json:"y"`
+	W int `json:"w"`
+	H int `json:"h"`
 }
 
 type InputRectangles struct {
-	rects []Rects `json:"rects"`
+	Rects []Rects `json:"rects"`
 }
 
 func newRectangle(id, x, y, w, h int) Rectangle {
@@ -124,10 +125,36 @@ func findIntersectionPoints(rectArr []Rectangle, rect Rectangle) (Point, int, in
 	return startPoint, width, height
 }
 
-func findRectangleIntersection() {
+func convertInputRectangles(inputRectangles InputRectangles) ([]Rectangle, error) {
+	var rectangles []Rectangle
+
+	inputRectangleSize := len(inputRectangles.Rects)
+	if inputRectangleSize > 10 {
+		return rectangles, errors.New("Input has more than 10 Rectangles!")
+	}
+
+	for i := 0; i < len(inputRectangles.Rects); i++ {
+		rect := newRectangle(i+1, inputRectangles.Rects[i].X,
+			inputRectangles.Rects[i].Y,
+			inputRectangles.Rects[i].W,
+			inputRectangles.Rects[i].H)
+
+		rectangles = append(rectangles, rect)
+	}
+
+	return rectangles, nil
+}
+
+func findRectangleIntersection(inputRectangles_ InputRectangles) {
+
+	inputRectangles, err := convertInputRectangles(inputRectangles_)
+
+	if err != nil {
+		return
+	}
+
 	var existingRectangles [100][]Rectangle
 	var existingRectanglesSize = 0
-	var inputRectangles [10]Rectangle
 	var inputRectanglesSize = 4
 
 	inputRectangles[0] = newRectangle(1, 100, 100, 250, 80)
@@ -159,8 +186,8 @@ func findRectangleIntersection() {
 	}
 }
 
-func importJSON() {
-	data, err := ioutil.ReadFile("./input.json")
+func importJSON() InputRectangles {
+	data, err := ioutil.ReadFile("input.json")
 
 	var inputRectangles InputRectangles
 
@@ -170,11 +197,11 @@ func importJSON() {
 		fmt.Println("error :", err)
 	}
 
-	for i := 0; i < len(inputRectangles.rects); i++ {
-		fmt.Println(inputRectangles.rects[i])
-	}
+	return inputRectangles
 }
 
 func main() {
-	importJSON()
+	inputRectangles := importJSON()
+
+	findRectangleIntersection(inputRectangles)
 }
