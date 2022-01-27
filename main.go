@@ -55,11 +55,11 @@ func checkIntersection(arrRect []Rectangle, rect Rectangle) bool {
 	return true
 }
 
-func printIntersected(arrRect []Rectangle, rect Rectangle) {
+func printIntersected(arrRect []Rectangle, rect Rectangle, intersectionIndex int) {
 	if len(arrRect) == 1 {
-		fmt.Print("Between ", arrRect[0].id, " and ", rect.id)
+		fmt.Print("\t", intersectionIndex, ": Between ", arrRect[0].id, " and ", rect.id)
 	} else {
-		fmt.Print("Between ")
+		fmt.Print("\t", intersectionIndex, ": Between ")
 		for i := 0; i < len(arrRect); i++ {
 			fmt.Print(arrRect[i].id, ",")
 		}
@@ -133,11 +133,15 @@ func convertInputRectangles(inputRectangles InputRectangles) ([]Rectangle, error
 		return rectangles, errors.New("Input has more than 10 Rectangles!")
 	}
 
+	fmt.Println("Input:")
+
 	for i := 0; i < len(inputRectangles.Rects); i++ {
 		rect := newRectangle(i+1, inputRectangles.Rects[i].X,
 			inputRectangles.Rects[i].Y,
 			inputRectangles.Rects[i].W,
 			inputRectangles.Rects[i].H)
+
+		fmt.Println("\t", i, ": Rectangle at (", rect.start.x, ",", rect.start.y, "), w=", rect.start.x+rect.end.x, ", h=", rect.start.y+rect.end.y)
 
 		rectangles = append(rectangles, rect)
 	}
@@ -155,12 +159,10 @@ func findRectangleIntersection(inputRectangles_ InputRectangles) {
 
 	var existingRectangles [100][]Rectangle
 	var existingRectanglesSize = 0
-	var inputRectanglesSize = 4
+	inputRectanglesSize := len(inputRectangles)
 
-	inputRectangles[0] = newRectangle(1, 100, 100, 250, 80)
-	inputRectangles[1] = newRectangle(2, 120, 200, 250, 150)
-	inputRectangles[2] = newRectangle(3, 140, 160, 250, 100)
-	inputRectangles[3] = newRectangle(4, 160, 140, 350, 190)
+	fmt.Println("Intersections:")
+	intersectionIndex := 0
 
 	for i := 0; i < inputRectanglesSize; i++ {
 		if i != 0 {
@@ -171,7 +173,8 @@ func findRectangleIntersection(inputRectangles_ InputRectangles) {
 			for j := 0; j < existingRectanglesCpySize; j++ {
 				if checkIntersection(existingRectanglesCpy[j], inputRectangles[i]) {
 
-					printIntersected(existingRectanglesCpy[j], inputRectangles[i])
+					printIntersected(existingRectanglesCpy[j], inputRectangles[i], intersectionIndex)
+					intersectionIndex++
 
 					tmp := existingRectanglesCpy[j]
 					tmp = append(tmp, inputRectangles[i])
